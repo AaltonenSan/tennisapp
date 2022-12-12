@@ -8,9 +8,14 @@ import {
     CardActions,
     IconButton,
     Box,
+    Button,
     Typography,
     Collapse,
-    Tooltip
+    Tooltip,
+    Dialog,
+    DialogContent,
+    DialogContentText,
+    DialogActions
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
@@ -25,6 +30,8 @@ export default function PlayerList() {
     const [selected, setSelected] = useState(-1);
     const [players, setPlayers] = useState([]);
     const [error, setError] = useState('Fetching favorites...');
+    const [openDialog, setOpenDialog] = useState(false);
+    const [playerToDelete, setPlayerToDelete] = useState(null);
     const expanded = false;
 
     // Get favorites from the database
@@ -71,17 +78,19 @@ export default function PlayerList() {
 
     // Delete favorite from the database
     const deletePlayer = (id) => {
-        try {
-            axios.get('http://localhost:8080/api/favorites/delete/' + id)
-            setPlayers(players.filter((player) => player.id !== id));
-        } catch (error) {
+            try {
+                axios.get('http://localhost:8080/api/favorites/delete/' + id)
+                setPlayers(players.filter((player) => player.id !== id));
+            } catch (error) {
                 console.log(error);
             };
+        handleCloseDialog();
     }
 
     // Return country code for flag - icon
     const createCountryIcon = (player) => {
-        const iso_code = Object.keys(countryCodes).find(key => countryCodes[key].toLowerCase() === player.country.toLowerCase());
+        const iso_code = Object.keys(countryCodes).find(key =>
+            countryCodes[key].toLowerCase() === player.country.toLowerCase());
         let code = '';
         if (iso_code) {
             code = "fi fi-" + iso_code.toLowerCase();
@@ -90,6 +99,16 @@ export default function PlayerList() {
         return (
             <Typography><span className={code}></span>&nbsp;{player.country}</Typography>
         )
+    }
+
+    // Handle Dialog for deleting a favorite
+    const handleCloseDialog = () => {
+        setPlayerToDelete(null)
+        setOpenDialog(false);
+    }
+    const handleOpenDialog = (id) => {
+        setPlayerToDelete(id)
+        setOpenDialog(true)
     }
     
     // Return error message or list of favorites
@@ -108,6 +127,17 @@ export default function PlayerList() {
                 <SearchField onChange={(e) => setQuery(e.target.value)} />
                 <FavoriteForm type={"add"} getFavorites={getFavorites} />
             </div>
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this favorite?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => deletePlayer(playerToDelete)}>Delete</Button>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                </DialogActions>
+            </Dialog>
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2} justifyContent="space-around">
                     {search(players).map((player) => {
@@ -123,9 +153,9 @@ export default function PlayerList() {
                                                 <><FavoriteForm oldPlayer={player} type={"edit"} getFavorites={getFavorites} /></>
                                             </Tooltip>
                                             <Tooltip title="Delete">
-                                                <><IconButton onClick={() => deletePlayer(player.id)}>
+                                                <IconButton onClick={() => handleOpenDialog(player.id)}>
                                                     <DeleteIcon color="secondary" />
-                                                </IconButton></>
+                                                </IconButton>
                                             </Tooltip>
                                             <ExpandMore
                                                 expand={expanded}

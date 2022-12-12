@@ -49,6 +49,7 @@ export default function TabsMUI({logged, setLogged}) {
         menuClose()
         setLogged(false)
         sessionStorage.removeItem('logged')
+        window.location.replace('/')
     }
 
     return (

@@ -15,8 +15,9 @@ export default function DrawerMUI ({logged, setLogged}) {
   const handleClose = () => setOpen(false);
   const handleLogout = () => {
     handleClose()
-    sessionStorage.setItem('logged', false)
+    sessionStorage.removeItem('logged')
     setLogged(false)
+    window.location.replace('/')
   }
 
   return (

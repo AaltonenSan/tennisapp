@@ -102,6 +102,7 @@ export default function FavoriteForm({ oldPlayer, type, getFavorites }) {
     // Add a new favorite to the database
     const savePlayer = async (e) => {
         e.preventDefault();
+        console.log(player.image.name)
         if (handleValidation(player)) {
             const formData = new FormData();
             if (oldPlayer) { 
@@ -185,7 +186,11 @@ export default function FavoriteForm({ oldPlayer, type, getFavorites }) {
                             <Button component='span'>
                                 <AttachmentIcon />
                             </Button>
-                            <Typography sx={{display:'inline'}}>{player.image === 'defaultplayer.jpg' ? null : player.image}</Typography>
+                            <Typography sx={{ display: 'inline' }}>
+                                {typeof player.image === 'string' && player.image !== 'defaultplayer.jpg'
+                                    ? player.image
+                                    : player.image.name}
+                            </Typography>
                         </InputLabel>
                         {type === "add"
                             ? <Button fullWidth variant='contained' color='primary' onClick={savePlayer}>Add</Button>
